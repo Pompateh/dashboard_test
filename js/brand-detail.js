@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchBrands = async () => {
         try {
-            // Update this URL to point to your backend API endpoint
             const response = await fetch('http://localhost:5000/api/brands');
             brands = await response.json();
             initializeBrand();
@@ -16,13 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initializeBrand = () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const brandId = parseInt(urlParams.get('id'));
-        currentBrand = brands.find(brand => brand.id === brandId) || brands[0];
+        const brandId = urlParams.get('id');
+        currentBrand = brands.find(brand => brand._id === brandId) || brands[0];
+        console.log('Current brand:', currentBrand); // For debugging
         renderBrandDetail();
     };
 
     const renderBrandDetail = () => {
         if (currentBrand) {
+            const baseUrl = 'http://localhost:5000/'; // Adjust this if your backend URL is different
             brandDetailContainer.innerHTML = `
                 <div class="detail_head">
                     <div class="detail_back"><a href="Brand.html" id="prevBrand">Back</a></div>
@@ -31,18 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="detail_content">
                     <div class="detail_main_img">
-                        <img src="${currentBrand.image}" alt="${currentBrand.name}">
+                        <img src="${baseUrl}${currentBrand.image}" alt="${currentBrand.name}">
                     </div>
                     <div class="brand_story">
                         <h3>Story</h3>
-                        <p>${currentBrand.story ? currentBrand.story : 'No story available for this brand.'}</p>
+                        <p>${currentBrand.story || 'No story available for this brand.'}</p>
                     </div>
                     <div class="detail_img_grid">
-                        <img src="${currentBrand.gridImage1}" alt="${currentBrand.name} Detail 1">
-                        <img src="${currentBrand.gridImage2}" alt="${currentBrand.name} Detail 2">
+                        <img src="${baseUrl}${currentBrand.gridImage1}" alt="${currentBrand.name} Detail 1">
+                        <img src="${baseUrl}${currentBrand.gridImage2}" alt="${currentBrand.name} Detail 2">
                     </div>
                     <div class="detail_bottom_img">
-                        <img src="${currentBrand.gridImage3}" alt="${currentBrand.name} Detail 3">
+                        <img src="${baseUrl}${currentBrand.gridImage3}" alt="${currentBrand.name} Detail 3">
                     </div>
                 </div>
                 <div class="detail_end">
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const navigateToNext = (e) => {
         e.preventDefault();
-        const currentIndex = brands.findIndex(brand => brand.id === currentBrand.id);
+        const currentIndex = brands.findIndex(brand => brand._id === currentBrand._id);
         const nextIndex = (currentIndex + 1) % brands.length;
         currentBrand = brands[nextIndex];
         updateURL();
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const navigateToPrev = (e) => {
         e.preventDefault();
-        const currentIndex = brands.findIndex(brand => brand.id === currentBrand.id);
+        const currentIndex = brands.findIndex(brand => brand._id === currentBrand._id);
         const prevIndex = (currentIndex - 1 + brands.length) % brands.length;
         currentBrand = brands[prevIndex];
         updateURL();
@@ -80,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateURL = () => {
-        const newUrl = `${window.location.pathname}?id=${currentBrand.id}`;
+        const newUrl = `${window.location.pathname}?id=${currentBrand._id}`;
         history.pushState(null, '', newUrl);
     };
 

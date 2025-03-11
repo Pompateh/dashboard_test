@@ -19,16 +19,39 @@ closeCart.addEventListener('click', () => {
 });
 
 // Function to render product list
+const fetchProducts = async () => {
+    try {
+        const response = await fetch('http://localhost:5000/api/products');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const products = await response.json();
+        return products;
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        return [];
+    }
+};
+
+// Function to render product list
+// Function to render product list
 const addDatatoHTML = () => {
     listProductHTML.innerHTML = '';
     if (listProducts.length > 0) {
         listProducts.forEach(product => {
+            let imageUrl = product.image || 'path/to/placeholder-image.jpg';
+    
+            // Check if the image URL is a relative path and prepend the backend URL
+            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                imageUrl = `http://localhost:5000/${imageUrl}`;
+            }
+
             let newProduct = document.createElement('div');
             newProduct.classList.add('item');
             newProduct.dataset.id = product._id;
             newProduct.innerHTML = `
                 <div class="price-tag">${product.price}$</div>
-                <img src="${product.image}" alt="${product.name}">
+                <img src="${imageUrl}" alt="${product.name}" onerror="this.src='path/to/placeholder-image.jpg'">
                 <h2>${product.name}</h2>
                 <p>${product.type}</p>
             `;
@@ -37,6 +60,8 @@ const addDatatoHTML = () => {
             });
             listProductHTML.appendChild(newProduct);
         });
+    } else {
+        listProductHTML.innerHTML = '<p>No products available.</p>';
     }
 };
 
